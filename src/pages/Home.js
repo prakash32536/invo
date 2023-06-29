@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import Nav from '../component/navbar/NavBar'
-import Invoice from '../component/Invoice/Invoice'
+import Exp from '../component/Invoice/Exp'
 import { db } from '../Firebase'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
+import { useRef } from 'react';
+import { collection, addDoc } from 'firebase/firestore'
 import { DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material'
-import { StyledBoxForInvoiceHeader,StyledDiv, StyledGrid, StyledTextField, StyledBoxForInvoices, StyledTypographyForHeader, StyledButtonForHeader, StyledDialog } from './Styled'
+import { StyledBoxForInvoiceHeader, StyledGrid, StyledTextField, StyledBoxForInvoices, StyledTypographyForHeader, StyledButtonForHeader, StyledDialog } from './Styled'
 
 const Home = () => {
 
@@ -35,10 +36,13 @@ const Home = () => {
     }, [total])
 
     //push everything in firebase
+    const childRef = useRef();
     const invoiceRef = collection(db, "invoice")
     const handleSubmit = async (e) => {
-       await addDoc(invoiceRef, fromData)
-       extra()
+        await addDoc(invoiceRef, fromData)
+        if (childRef.current) {
+            childRef.current.extra();
+          }
     }
 
     //dailog 
@@ -53,22 +57,6 @@ const Home = () => {
         setOpen(false);
     };
 
-    //call the data from direbase 
-    const [data, setData] = useState([])
-    console.log(data)             // the final output of comming from firestore
-    const extra = async () => {
-        const invoiceRef = collection(db, "invoice")
-        let updatedData = []
-        const snapshot = await getDocs(invoiceRef)
-        snapshot.docs.forEach((doc) => {
-            updatedData.push({...doc.data(), id: doc.id})
-        })
-        setData(updatedData)
-    }
-    useEffect(() => {
-        extra()
-    }, [])
-
     return (
         <div>
             <Nav />
@@ -77,19 +65,11 @@ const Home = () => {
                     <StyledTypographyForHeader variant='h4'>Invoices</StyledTypographyForHeader>
                     <StyledButtonForHeader onClick={handleClickOpen} variant='contained'>New Invoices +</StyledButtonForHeader>
                 </StyledBoxForInvoiceHeader>
+                
                 {/* invoice  */}
 
-                {
-                    data &&
-                    data.map((data, index) => {
-                        return (
-                            <StyledDiv key={index}>
-                                <Invoice data={data} />
-                            </StyledDiv>
-                        )
-                    }
-                    )
-                }
+                <Exp ref={childRef}/>
+
             </StyledBoxForInvoices>
 
 

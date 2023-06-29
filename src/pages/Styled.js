@@ -13,6 +13,7 @@ width: 100%;
 display: flex;
 align-items: center;
 flex-direction: column;
+justify-content: center;
 `;
 export const StyledTypographyForHeader = styled(Typography)`
 color: white;
